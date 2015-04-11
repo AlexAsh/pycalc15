@@ -56,10 +56,11 @@ class Calc(tpg.Parser):
     token number: '\d+' int ;
     token op1: '[|&+-]' make_op ;
     token op2: '[*/]' make_op ;
+    token finish: '\s*exit\s*';
     token id: '\w+' ;
 
     START/e -> Operator $e=None$ | Expr/e | $e=None$ ;
-    Operator -> Assign ;
+    Operator -> finish $exit()$ |Assign ;
     Assign -> id/i '=' Expr/e $Vars[i]=e$ ;
     Expr/t -> Fact/t ( op1/op Fact/f $t=op(t,f)$ )* ;
     Fact/f -> Atom/f ( op2/op Atom/a $f=op(f,a)$ )* ;
@@ -77,8 +78,7 @@ calc = Calc()
 Vars={}
 PS1='--> '
 
-Stop=False
-while not Stop:
+while True:
     line = raw_input(PS1)
     try:
         res = calc(line)
