@@ -5,6 +5,8 @@ import readline
 import sys
 import tpg
 import itertools
+import re
+
 
 def make_op(s):
     return {
@@ -15,6 +17,11 @@ def make_op(s):
         '&': lambda x,y: x&y,
         '|': lambda x,y: x|y,
     }[s]
+
+
+def clear_quotes(string):
+    return re.search('[^\'"]+', string).group(0)
+
 
 class Vector(list):
     def __init__(self, *argp, **argn):
@@ -57,10 +64,11 @@ class Calc(tpg.Parser):
     token op1: '[|&+-]' make_op ;
     token op2: '[*/]' make_op ;
     token finish: '\s*exit\s*';
+    token filepath: '[\'"](\w|\s|[./-])+[\'"]' clear_quotes;
     token id: '\w+' ;
 
     START/e -> Operator $e=None$ | Expr/e | $e=None$ ;
-    Operator -> finish $exit()$ |Assign ;
+    Operator -> 'script\(' filepath/i '\)' $script(i)$ | finish $exit()$ |Assign ;
     Assign -> id/i '=' Expr/e $Vars[i]=e$ ;
     Expr/t -> Fact/t ( op1/op Fact/f $t=op(t,f)$ )* ;
     Fact/f -> Atom/f ( op2/op Atom/a $f=op(f,a)$ )* ;
@@ -75,15 +83,24 @@ class Calc(tpg.Parser):
     """
 
 calc = Calc()
-Vars={}
-PS1='--> '
+Vars = {}
+PS1 = '--> '
 
-while True:
-    line = raw_input(PS1)
+
+def script(filepath):
+    with open(filepath, 'r') as fp:
+        for line in fp:
+            do_calc(line)
+
+
+def do_calc(line):
     try:
         res = calc(line)
     except tpg.Error as exc:
         print >> sys.stderr, exc
         res = None
-    if res != None:
+    if res is not None:
         print res
+
+while True:
+    do_calc(raw_input(PS1))
