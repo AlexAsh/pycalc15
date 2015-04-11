@@ -39,7 +39,19 @@ class Vector(list):
     def __add__(self, a): return self.__op(a, lambda c,d: c+d)
     def __sub__(self, a): return self.__op(a, lambda c,d: c-d)
     def __div__(self, a): return self.__op(a, lambda c,d: c/d)
-    def __mul__(self, a): return self.__op(a, lambda c,d: c*d)
+    def __mul__(self, a):
+        if not isinstance(self[0], Vector):
+            return self.__op(a, lambda c, d: c * d)
+        res = []
+        for i in range(len(self)):
+            row = []
+            for j in range(len(a[0])):
+                value = self[i][0] * a[0][j]
+                for k in range(1, len(self)):
+                    value += self[i][k] * a[k][j]
+                row += [value]
+            res += [row]
+        return res
 
     def __and__(self, a):
         try:
