@@ -28,7 +28,22 @@ class Vector(list):
         list.__init__(self, *argp, **argn)
 
     def __str__(self):
-        return "[" + " ".join(str(c) for c in self) + "]"
+        if not isinstance(self[0], Vector):
+            return "[" + " ".join(str(c) for c in self) + "]"
+        maxlens = [0 for i in range(len(self[0]))]
+        for i in range(len(self[0])):
+            maxlen = 0
+            for j in range(len(self)):
+                if len(str(self[j][i])) > maxlen:
+                    maxlen = len(str(self[j][i]))
+            maxlens[i] = maxlen
+        strings = ''
+        for i in range(len(self)):
+            for j in range(len(self[0])):
+                value = str(self[i][j])
+                strings += ' ' * (maxlens[j] - len(value)) + value + ' '
+            strings += "\n"
+        return "[\n" + strings + "]"
 
     def __op(self, a, op):
         try:
@@ -50,8 +65,8 @@ class Vector(list):
                 for k in range(1, len(self)):
                     value += self[i][k] * a[k][j]
                 row += [value]
-            res += [row]
-        return res
+            res += [Vector(row)]
+        return Vector(res)
 
     def __and__(self, a):
         try:
