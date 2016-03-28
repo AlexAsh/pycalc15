@@ -6,3 +6,5 @@ Command reading, parsing and interpreting
 * Умножение правильных матриц
 * Вывод матриц чисел и матриц векторов (с матрицами матриц уже не очень)
 
+
+[MSU CMC PYTHON 2015 SPRING](http://uneex.ru/LecturesCMC/PythonDevelopment2015)
